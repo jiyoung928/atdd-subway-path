@@ -1,7 +1,7 @@
-package subway.domain.line;
+package nextstep.subway.domain.line;
 
-import subway.domain.section.Section;
-import subway.domain.section.Sections;
+import nextstep.subway.domain.section.Section;
+import nextstep.subway.domain.section.Sections;
 
 import javax.persistence.*;
 import java.util.Collection;
@@ -26,6 +26,12 @@ public class Line {
     }
 
     public Line(String name, String color) {
+        this.name = name;
+        this.color = color;
+    }
+
+    public Line(Long id, String name, String color) {
+        this.id = id;
         this.name = name;
         this.color = color;
     }

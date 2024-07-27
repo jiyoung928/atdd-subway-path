@@ -1,11 +1,11 @@
-package subway.service.station;
+package nextstep.subway.service.station;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import subway.domain.station.Station;
-import subway.domain.station.StationRepository;
-import subway.dto.station.StationRequest;
-import subway.dto.station.StationResponse;
+import nextstep.subway.domain.station.Station;
+import nextstep.subway.domain.station.StationRepository;
+import nextstep.subway.dto.station.StationRequest;
+import nextstep.subway.dto.station.StationResponse;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,6 +23,11 @@ public class StationService {
     public StationResponse saveStation(StationRequest stationRequest) {
         Station station = stationRepository.save(new Station(stationRequest.getName()));
         return createStationResponse(station);
+    }
+
+    public Station findById(Long id) {
+        return stationRepository.findById(id).orElseThrow(IllegalArgumentException::new);
+
     }
 
     public List<StationResponse> findAllStations() {

@@ -1,16 +1,17 @@
-package subway.service.section;
+package nextstep.subway.service.section;
 
+import nextstep.subway.domain.line.Line;
+import nextstep.subway.domain.line.LineRepository;
+import nextstep.subway.domain.section.Section;
+import nextstep.subway.domain.section.SectionRepository;
+import nextstep.subway.domain.station.Station;
+import nextstep.subway.domain.station.StationRepository;
+import nextstep.subway.dto.line.LineResponse;
+import nextstep.subway.dto.section.SectionRequest;
+import nextstep.subway.service.line.LineService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import subway.domain.line.Line;
-import subway.domain.line.LineRepository;
-import subway.domain.section.Section;
-import subway.domain.section.SectionRepository;
-import subway.domain.station.Station;
-import subway.domain.station.StationRepository;
-import subway.dto.line.LineResponse;
-import subway.dto.section.SectionRequest;
-import subway.service.line.LineService;
+
 
 @Service
 @Transactional(readOnly = true)

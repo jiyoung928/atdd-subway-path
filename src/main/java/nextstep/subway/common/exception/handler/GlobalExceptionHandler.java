@@ -1,13 +1,14 @@
-package subway.common.exception.handler;
+package nextstep.subway.common.exception.handler;
 
 import lombok.extern.slf4j.Slf4j;
+import nextstep.subway.common.exception.BusinessException;
+import nextstep.subway.common.response.ErrorCode;
+import nextstep.subway.common.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import subway.common.exception.BusinessException;
-import subway.common.response.ErrorCode;
-import subway.common.response.ErrorResponse;
+
 
 
 @ControllerAdvice

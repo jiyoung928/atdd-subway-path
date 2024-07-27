@@ -1,8 +1,8 @@
-package subway.dto.line;
+package nextstep.subway.dto.line;
 
-import subway.domain.line.Line;
-import subway.domain.station.Station;
-import subway.dto.station.StationResponse;
+import nextstep.subway.domain.line.Line;
+import nextstep.subway.domain.station.Station;
+import nextstep.subway.dto.station.StationResponse;
 
 import java.util.List;
 import java.util.stream.Collectors;

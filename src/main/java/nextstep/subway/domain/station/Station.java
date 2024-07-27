@@ -1,10 +1,6 @@
-package subway.domain.station;
-
-import subway.domain.section.Section;
+package nextstep.subway.domain.station;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 public class Station {
@@ -18,6 +14,11 @@ public class Station {
     }
 
     public Station(String name) {
+        this.name = name;
+    }
+
+    public Station(long id, String name) {
+        this.id = id;
         this.name = name;
     }
 

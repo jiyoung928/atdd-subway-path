@@ -1,4 +1,4 @@
-package subway.common.response;
+package nextstep.subway.common.response;
 
 import lombok.AccessLevel;
 import lombok.Getter;

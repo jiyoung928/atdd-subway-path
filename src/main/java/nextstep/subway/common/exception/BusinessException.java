@@ -1,7 +1,7 @@
-package subway.common.exception;
+package nextstep.subway.common.exception;
 
 import lombok.Getter;
-import subway.common.response.ErrorCode;
+import nextstep.subway.common.response.ErrorCode;
 
 public class BusinessException extends RuntimeException {
     @Getter

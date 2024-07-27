@@ -1,8 +1,8 @@
-package nextstep.subway.acceptance.line;
+package nextstep.subway.acceptance.backup.line;
 
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
-import nextstep.subway.acceptance.util.TestUtil;
+import nextstep.subway.acceptance.backup.util.TestUtil;
 import nextstep.subway.dto.line.LineRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
-import static nextstep.subway.acceptance.util.TestUtil.createStation;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("지하철 노선 관련 기능")
@@ -28,9 +27,9 @@ public class LineAcceptanceTest {
 
     @BeforeEach
     void initStation(){
-        createStation("지하철역");
-        createStation("새로운지하철역");
-        createStation("또다른지하철역");
+        TestUtil.createStation("지하철역");
+        TestUtil.createStation("새로운지하철역");
+        TestUtil.createStation("또다른지하철역");
     }
     /**
      * Given: 새로운 지하철 노선 정보를 입력하고,

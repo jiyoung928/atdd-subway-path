@@ -1,11 +1,11 @@
-package subway.controller.section;
+package nextstep.subway.controller.section;
 
+import nextstep.subway.dto.line.LineResponse;
+import nextstep.subway.dto.section.SectionRequest;
+import nextstep.subway.service.section.SectionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import subway.dto.line.LineResponse;
-import subway.dto.section.SectionRequest;
-import subway.service.section.SectionService;
 
 import java.net.URI;
 

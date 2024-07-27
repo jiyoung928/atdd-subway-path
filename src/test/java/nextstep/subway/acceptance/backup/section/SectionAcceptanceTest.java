@@ -1,8 +1,8 @@
-package nextstep.subway.acceptance.section;
+package nextstep.subway.acceptance.backup.section;
 
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
-import nextstep.subway.acceptance.util.TestUtil;
+import nextstep.subway.acceptance.backup.util.TestUtil;
 import nextstep.subway.dto.line.LineRequest;
 import nextstep.subway.dto.section.SectionRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,8 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.DirtiesContext;
 
 import static io.restassured.RestAssured.given;
-import static nextstep.subway.acceptance.util.TestUtil.createLine;
-import static nextstep.subway.acceptance.util.TestUtil.createStation;
+import static nextstep.subway.acceptance.backup.util.TestUtil.createLine;
+import static nextstep.subway.acceptance.backup.util.TestUtil.createStation;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 

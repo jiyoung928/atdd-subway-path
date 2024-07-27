@@ -1,4 +1,4 @@
-package subway.dto.section;
+package nextstep.subway.dto.section;
 
 public class SectionRequest {
     private Long upStationId;

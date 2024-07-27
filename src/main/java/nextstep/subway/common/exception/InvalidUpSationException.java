@@ -1,6 +1,6 @@
-package subway.common.exception;
+package nextstep.subway.common.exception;
 
-import subway.common.response.ErrorCode;
+import nextstep.subway.common.response.ErrorCode;
 
 public class InvalidUpSationException extends BusinessException {
     public InvalidUpSationException(ErrorCode errorCode) {

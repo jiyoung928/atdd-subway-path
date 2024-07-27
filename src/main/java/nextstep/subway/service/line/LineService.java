@@ -1,14 +1,14 @@
-package subway.service.line;
+package nextstep.subway.service.line;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import subway.domain.line.Line;
-import subway.domain.line.LineRepository;
-import subway.domain.section.Section;
-import subway.domain.station.Station;
-import subway.domain.station.StationRepository;
-import subway.dto.line.LineRequest;
-import subway.dto.line.LineResponse;
+import nextstep.subway.domain.line.Line;
+import nextstep.subway.domain.line.LineRepository;
+import nextstep.subway.domain.section.Section;
+import nextstep.subway.domain.station.Station;
+import nextstep.subway.domain.station.StationRepository;
+import nextstep.subway.dto.line.LineRequest;
+import nextstep.subway.dto.line.LineResponse;
 
 import java.util.ArrayList;
 import java.util.List;

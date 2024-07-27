@@ -1,4 +1,4 @@
-package nextstep.subway.acceptance.util;
+package nextstep.subway.acceptance.backup.util;
 
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
