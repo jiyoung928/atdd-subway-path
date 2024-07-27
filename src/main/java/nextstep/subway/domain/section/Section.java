@@ -21,7 +21,6 @@ public class Section {
     private Long distance;
 
     private boolean first;
-    private boolean last;
 
     protected Section() {}
 
@@ -54,6 +53,9 @@ public class Section {
         return distance;
     }
 
+    public boolean isFirst(){
+        return this.first;
+    }
 
     public void addLine(Line line) {
         this.line = line;
@@ -62,9 +64,7 @@ public class Section {
     public void updateFirstSection(boolean first) {
         this.first = first;
     }
-    public void updateLastSection(boolean last) {
-        this.last = last;
-    }
+
 
 
     public void updateForNewSection(Section newSection) {

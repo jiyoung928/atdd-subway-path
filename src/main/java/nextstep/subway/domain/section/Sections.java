@@ -26,14 +26,24 @@ public class Sections {
             return;
         }
 
-        // 하행역이 이미 노선에 포함되있는 경우
-        if(getStationIds().contains(section.getDownStationId())) {
-            throw new InvalidDownStationException(ErrorCode.INVALID_DOWN_STATION_ADD)
+
+
+        // 구간이 이미 노선에 포함되있는 경우
+        Collection<Long> stationIds = getStationIds();
+        if(getStationIds().contains(section.getDownStationId()) && getStationIds().contains(section.getUpStationId())) {
+            throw new ExistStationException(ErrorCode.INVALID_STATION_ADD);
         }
 
 
-        // 첫번째 역과 마지막 역에 추가하는경우 추가
-        if(getFisrtUpStationId().equals(section.getDownStationId()) || getLastDownStationId().equals(section.getUpStationId())){
+        // 첫번째 역에 추가
+        if(getFisrtUpStation().getId().equals(section.getDownStationId())){
+            getFisrtUpStation().updateFirstSection(false);
+            this.sections.add(section);
+            return;
+        }
+
+        // 마지막 역에 추가
+        if(getLastDownStationId().equals(section.getUpStationId())){
             this.sections.add(section);
             return;
         }
@@ -67,8 +77,11 @@ public class Sections {
         return sections.get(sections.size() - 1).getDownStationId();
     }
 
-    public Long getFisrtUpStationId() {
-        return sections.get(0).getUpStationId();
+    public Section getFisrtUpStation() {
+        return sections.stream()
+                .filter(Section::isFirst)
+                .findAny()
+                .orElse(null);
     }
 
     public void removeLastStation(Long stationId) {
