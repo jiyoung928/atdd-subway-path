@@ -10,9 +10,8 @@ import nextstep.subway.domain.station.StationRepository;
 import nextstep.subway.dto.line.LineRequest;
 import nextstep.subway.dto.line.LineResponse;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -51,8 +50,9 @@ public class LineService {
 
     public LineResponse findLine(Long id) {
         Line line = lineRepository.findById(id).orElseThrow(IllegalArgumentException::new);
-        return LineResponse.createResponse(line, getLineStations(line));
+        return LineResponse.createResponse(line, getSortedStations(line.getStationIds()));
     }
+
     @Transactional
     public void editLineById(Long id, LineRequest lineRequest) {
         Line line = lineRepository.findById(id).orElseThrow(IllegalArgumentException::new);
@@ -69,6 +69,21 @@ public class LineService {
     public List<Station> getLineStations(Line line) {
         return stationRepository.findByIdIn(line.getStationIds());
     }
+
+
+    private Map<Long, Station> getStationMap(Collection<Long> stationsIds) {
+        return stationRepository.findByIdIn(stationsIds)
+                .stream()
+                .collect(Collectors.toMap(Station::getId, (station -> station)));
+    }
+
+    private List<Station> getSortedStations(Collection<Long> stationsIds) {
+        Map<Long, Station> stationMap = getStationMap(stationsIds);
+        return stationsIds.stream()
+                .map(stationMap::get)
+                .collect(Collectors.toList());
+    }
+
 
 
 

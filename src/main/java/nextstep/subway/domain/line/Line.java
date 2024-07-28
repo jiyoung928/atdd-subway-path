@@ -55,7 +55,7 @@ public class Line {
     }
 
     public Collection<Long> getStationIds() {
-        return sections.getStationIds();
+        return sections.getSortedStationIds();
     }
 
     public void addSection(Section section) {

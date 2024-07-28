@@ -12,6 +12,8 @@ import nextstep.subway.service.line.LineService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 
 @Service
 @Transactional(readOnly = true)
@@ -29,7 +31,7 @@ public class SectionService {
     }
 
     @Transactional
-    public LineResponse saveSection(Long lineId, SectionRequest sectionRequest) {
+    public void saveSection(Long lineId, SectionRequest sectionRequest) {
 
         Line line = lineRepository.findById(lineId).orElseThrow(IllegalArgumentException::new);
         Station upStation = stationRepository.findById(sectionRequest.getUpStationId())
@@ -38,8 +40,6 @@ public class SectionService {
                 .orElseThrow(IllegalArgumentException::new);
 
         line.addSection(new Section(line, upStation.getId(), downStation.getId(), sectionRequest.getDistance()));
-
-        return LineResponse.createResponse(line, lineService.getLineStations(line));
     }
 
     @Transactional
@@ -50,4 +50,5 @@ public class SectionService {
         return LineResponse.createResponse(line, lineService.getLineStations(line));
 
     }
+
 }

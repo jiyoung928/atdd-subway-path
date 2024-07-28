@@ -3,10 +3,7 @@ package nextstep.subway.domain.section;
 import nextstep.subway.common.exception.*;
 import nextstep.subway.common.response.ErrorCode;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Embeddable;
-import javax.persistence.FetchType;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -18,15 +15,16 @@ public class Sections {
     @OneToMany(mappedBy = "line", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Section> sections = new ArrayList<>();
 
+    @Transient
+    private final SectionStationSorter sectionStationSorter = new SectionStationSorter();
 
     public void add(Section section) {
         if(this.sections.isEmpty()){
             section.updateFirstSection(true);
+            section.updateLastSection(true);
             this.sections.add(section);
             return;
         }
-
-
 
         // 구간이 이미 노선에 포함되있는 경우
         Collection<Long> stationIds = getStationIds();
@@ -38,19 +36,28 @@ public class Sections {
         // 첫번째 역에 추가
         if(getFisrtUpStation().getId().equals(section.getDownStationId())){
             getFisrtUpStation().updateFirstSection(false);
+            section.updateFirstSection(true);
             this.sections.add(section);
             return;
         }
 
         // 마지막 역에 추가
         if(getLastDownStationId().equals(section.getUpStationId())){
+            getLastDownStation().updateLastSection(false);
+            section.updateLastSection(true);
             this.sections.add(section);
             return;
         }
 
 
         Section origin = getOriginSection(section);
+        Long originDownStationId = origin.getDownStationId();
         origin.updateForNewSection(section);
+        section.updateNewSection(originDownStationId);
+        if(origin.isLast()){
+            origin.updateLastSection(false);
+            section.updateLastSection(true);
+        }
         this.sections.add(section);
 
     }
@@ -73,6 +80,11 @@ public class Sections {
         stationIds.add(getLastDownStationId());
         return stationIds;
     }
+
+    public Section getLastDownStation() {
+        return sections.get(sections.size() - 1);
+    }
+
     public Long getLastDownStationId() {
         return sections.get(sections.size() - 1).getDownStationId();
     }
@@ -97,5 +109,9 @@ public class Sections {
 
         this.sections.remove(sections.size() - 1);
 
+    }
+
+    public List<Long> getSortedStationIds() {
+        return sectionStationSorter.getSortedStationIds(this.sections);
     }
 }
