@@ -112,6 +112,40 @@ class SectionAcceptanceTest extends AcceptanceTest {
     }
 
     /**
+     * When 지하철 노선에 거리가 1보다 작은 구간을 추가하면
+     * Then 예외가 발생한다.
+     */
+    @DisplayName("추가되는 구간의 거리는 1이상이어야 한다.")
+    @Test
+    void addLineSectionDistanceException() {
+        // when
+        Long 광교역 = 지하철역_생성_요청("광교역").jsonPath().getLong("id");
+        ExtractableResponse<Response> response = 지하철_노선에_지하철_구간_생성_요청(신분당선, createSectionCreateParams(정자역, 광교역,0L));
+
+        // then
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(response.jsonPath().getString("code")).isEqualTo("S007");
+        assertThat(response.jsonPath().getString("message")).isEqualTo(" 추가되는 구간의 거리는 1이상이어야 합니다.");
+
+    }
+
+    /**
+     * When 지하철 노선에 기존 구간의 거리보다 큰 거리의 구간을 추가하면
+     * Then 예외가 발생한다.
+     */
+    @DisplayName("추가되는 구간의 거리는 기존 구간의 거리보다 작아야한다.")
+    @Test
+    void addLineSectionDistanceTooLongException() {
+        // when
+        Long 판교역 = 지하철역_생성_요청("판교역").jsonPath().getLong("id");
+        ExtractableResponse<Response> response = 지하철_노선에_지하철_구간_생성_요청(신분당선, createSectionCreateParams(양재역, 판교역, 10L));
+        // then
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(response.jsonPath().getString("code")).isEqualTo("S006");
+        assertThat(response.jsonPath().getString("message")).isEqualTo(" 추가되는 구간의 거리는 기존 구간의 거리보다 작아야합니다.");
+
+    }
+    /**
      * Given 지하철 노선에 새로운 구간 추가를 요청 하고
      * When 지하철 노선의 마지막 구간 제거를 요청 하면
      * Then 노선에 구간이 제거된다

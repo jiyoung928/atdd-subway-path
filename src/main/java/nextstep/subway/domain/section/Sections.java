@@ -27,11 +27,14 @@ public class Sections {
         }
 
         // 구간이 이미 노선에 포함되있는 경우
-        Collection<Long> stationIds = getStationIds();
         if(getStationIds().contains(section.getDownStationId()) && getStationIds().contains(section.getUpStationId())) {
             throw new ExistStationException(ErrorCode.INVALID_STATION_ADD);
         }
+        // 추가되는 거리가 1보다 작은 경우
+        if(section.getDistance() < 1){
+            throw new SectionDistanceNotValidException(ErrorCode.INVALID_DISTANCE_ADD);
 
+        }
 
         // 첫번째 역에 추가
         if(getFisrtUpStation().getId().equals(section.getDownStationId())){

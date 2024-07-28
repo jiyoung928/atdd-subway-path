@@ -1,5 +1,7 @@
 package nextstep.subway.domain.section;
 
+import nextstep.subway.common.exception.SectionDistanceNotValidException;
+import nextstep.subway.common.response.ErrorCode;
 import nextstep.subway.domain.line.Line;
 
 import javax.persistence.*;
@@ -77,6 +79,10 @@ public class Section {
 
 
     public void updateForNewSection(Section newSection) {
+        if (newSection.distance > distance) {
+            throw new SectionDistanceNotValidException(ErrorCode.TOO_LONG_DISTANCE_ADD);
+        }
+
         Long newDistance = this.distance - newSection.distance;
         this.downStationId = newSection.downStationId;
         this.distance = newDistance;
