@@ -81,7 +81,7 @@ class LineTest {
 
             // when
             // 마지막 구간(역)을 삭제한다.
-            신분당선.removeLastStation(판교역);
+            신분당선.removeStation(판교역);
 
             // then
             // 노선에 포함된 역 조회시, 마지막 구간(역)이 조회되지 않는다.
