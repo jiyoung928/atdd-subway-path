@@ -26,19 +26,10 @@ public class Sections {
             return;
         }
 
-        // 구간이 이미 노선에 포함되있는 경우
-        if(getStationIds().contains(section.getDownStationId()) && getStationIds().contains(section.getUpStationId())) {
-            throw new ExistStationException(ErrorCode.INVALID_STATION_ADD);
-        }
-        // 추가되는 거리가 1보다 작은 경우
-        if(section.getDistance() < 1){
-            throw new SectionDistanceNotValidException(ErrorCode.INVALID_DISTANCE_ADD);
-
-        }
 
         // 첫번째 역에 추가
-        if(getFisrtUpStation().getId().equals(section.getDownStationId())){
-            getFisrtUpStation().updateFirstSection(false);
+        if(getFirstUpStation().getId().equals(section.getDownStationId())){
+            getFirstUpStation().updateFirstSection(false);
             section.updateFirstSection(true);
             this.sections.add(section);
             return;
@@ -92,25 +83,61 @@ public class Sections {
         return sections.get(sections.size() - 1).getDownStationId();
     }
 
-    public Section getFisrtUpStation() {
+    public Section getFirstUpStation() {
         return sections.stream()
                 .filter(Section::isFirst)
                 .findAny()
                 .orElse(null);
     }
 
-    public void removeLastStation(Long stationId) {
+    public Section findByUpStationId(Long upStationId) {
+        return sections.stream()
+                .filter(section -> section.getUpStationId().equals(upStationId))
+                .findAny()
+                .orElse(null);
+    }
+    public Section findByDownStationId(Long downStationId) {
+        return sections.stream()
+                .filter(section -> section.getDownStationId().equals(downStationId))
+                .findAny()
+                .orElse(null);
+    }
+
+    public void removeStation(Long stationId) {
         // 구간이 1개 이하인경우,
         if (this.sections.size() <= 1) {
             throw new InsufficientStationsException(ErrorCode.INSUFFICIENT_STATION_DELETE);
         }
-        // 지하철 노선에 등록된 역(하행 종점역)이 아닌 경우
-        if (!getLastDownStationId().equals(stationId)) {
-            throw new NotLastStationException(ErrorCode.NOT_LAST_STATION_DELETE);
+
+        // 첫번째 역 삭제
+        if(getFirstUpStation().getId().equals(stationId)){
+            findByUpStationId(getFirstUpStation().getDownStationId()).updateFirstSection(true);
+            if (sections.size() == 2){
+                findByUpStationId(getFirstUpStation().getDownStationId()).updateLastSection(true);
+            }
+            this.sections.remove(getFirstUpStation());
+            return;
         }
 
+        // 마지막 역 삭제
+        if(getLastDownStationId().equals(stationId)){
+            findByDownStationId(getLastDownStation().getUpStationId()).updateLastSection(true);
+            if (sections.size() == 2){
+                findByDownStationId(getLastDownStation().getUpStationId()).updateFirstSection(true);
+            }
+            this.sections.add(getLastDownStation());
+            return;
+        }
 
-        this.sections.remove(sections.size() - 1);
+        // 중간 역 삭제
+        Section previousSection = findByDownStationId(stationId);
+        Section nextSection = findByUpStationId(stationId);
+        previousSection.updateForRemoveSection(nextSection);
+        if( sections.size() == 2 ){
+            previousSection.updateFirstSection(true);
+            previousSection.updateLastSection(true);
+        }
+        this.sections.remove(nextSection);
 
     }
 

@@ -62,8 +62,8 @@ public class Line {
         sections.add(section);
     }
 
-    public void removeLastStation(Long stationId) {
-        sections.removeLastStation(stationId);
+    public void removeStation(Long stationId) {
+        sections.removeStation(stationId);
     }
 
 }

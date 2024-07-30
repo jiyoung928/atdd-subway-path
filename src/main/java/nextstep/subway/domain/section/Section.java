@@ -93,4 +93,9 @@ public class Section {
         this.downStationId = upStationId;
     }
 
+    public void updateForRemoveSection(Section removeSection) {
+        this.downStationId = removeSection.downStationId;
+        this.distance = this.distance + removeSection.distance;
+
+    }
 }
