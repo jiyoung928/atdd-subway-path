@@ -1,5 +1,8 @@
 package nextstep.subway.domain.section;
 
+import nextstep.subway.common.exception.NotFoundFirstSectionException;
+import nextstep.subway.common.response.ErrorCode;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,7 +10,7 @@ public class SectionStationSorter {
     public List<Long> getSortedStationIds(final List<Section> sections) {
         List<Long> stationIds = new ArrayList<>();
 
-        Long currentStationId = getFisrtUpStation(sections).getUpStationId();
+        Long currentStationId = getFirstUpStation(sections).getUpStationId();
         stationIds.add(currentStationId);
         for (Section section : sections) {
             if(!section.isFirst()){
@@ -21,10 +24,10 @@ public class SectionStationSorter {
         return stationIds;
     }
 
-    public Section getFisrtUpStation(final List<Section> sections) {
+    public Section getFirstUpStation(final List<Section> sections) {
         return sections.stream()
                 .filter(Section::isFirst)
-                .findAny()
-                .orElse(null);
+                .findFirst()
+                .orElseThrow(()->new NotFoundFirstSectionException(ErrorCode.NOT_FOUND_FIRST_SECTION));
     }
 }
