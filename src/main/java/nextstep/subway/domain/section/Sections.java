@@ -95,13 +95,13 @@ public class Sections {
     public Section findByUpStationId(Long upStationId) {
         return sections.stream()
                 .filter(section -> section.getUpStationId().equals(upStationId))
-                .findAny()
+                .findFirst()
                 .orElse(null);
     }
     public Section findByDownStationId(Long downStationId) {
         return sections.stream()
                 .filter(section -> section.getDownStationId().equals(downStationId))
-                .findAny()
+                .findFirst()
                 .orElse(null);
     }
 
