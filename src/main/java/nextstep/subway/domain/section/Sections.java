@@ -88,7 +88,7 @@ public class Sections {
     public Section getFirstUpStation() {
         return sections.stream()
                 .filter(Section::isFirst)
-                .findAny()
+                .findFirst()
                 .orElse(null);
     }
 
