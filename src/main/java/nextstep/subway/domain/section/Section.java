@@ -69,9 +69,7 @@ public class Section {
         this.line = line;
     }
 
-    public void updateFirstSection(boolean first) {
-        this.first = first;
-    }
+    public void updateFirstSection(boolean first) { this.first = first; }
 
     public void updateLastSection(boolean last) {
         this.last = last;
@@ -83,19 +81,57 @@ public class Section {
             throw new SectionDistanceNotValidException(ErrorCode.TOO_LONG_DISTANCE_ADD);
         }
 
-        Long newDistance = this.distance - newSection.distance;
-        this.downStationId = newSection.downStationId;
-        this.distance = newDistance;
+        // 첫번째 역에 추가
+        if(first && upStationId.equals(newSection.getDownStationId())){
+            first = false;
+             newSection.first = true;
+             return;
+        }
+
+        // 마지막 flag 설정
+        if(this.last){
+            this.last = false;
+            newSection.last = true;
+        }
+
+        // 중간 구간 추가 일때만, 거리 조정
+        if(this.upStationId.equals(newSection.getUpStationId())){
+            Long newDistance = this.distance - newSection.distance;
+            this.downStationId = newSection.downStationId;
+            this.distance = newDistance;
+        }
+
+
     }
 
     public void updateNewSection(Long upStationId) {
+        if(upStationId.equals(0L)){
+            this.first = true;
+            this.last = true;
+            return;
+        }
         this.upStationId = this.downStationId;
         this.downStationId = upStationId;
     }
 
-    public void updateForRemoveSection(Section removeSection) {
-        this.downStationId = removeSection.downStationId;
-        this.distance = this.distance + removeSection.distance;
+    public void updateForRemoveSection(Section nextSection, Long removeStationId) {
+        // 첫번째 역 셋팅
+        if(upStationId.equals(removeStationId)){
+            nextSection.first = true;
+        }
+        // 마지막 역 셋팅
+        if(nextSection.last){
+            this.last = true;
+        }
+
+        // 중간 구간 삭제 일때만, 거리 조정
+        if(nextSection.getUpStationId().equals(removeStationId)){
+            this.downStationId = nextSection.downStationId;
+            this.distance = this.distance + nextSection.distance;
+        }
+
 
     }
+
+
 }

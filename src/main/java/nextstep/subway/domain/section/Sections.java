@@ -7,6 +7,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Embeddable
@@ -20,8 +21,7 @@ public class Sections {
 
     public void add(Section section) {
         if(this.sections.isEmpty()){
-            section.updateFirstSection(true);
-            section.updateLastSection(true);
+            section.updateNewSection(0L);
             this.sections.add(section);
             return;
         }
@@ -38,16 +38,14 @@ public class Sections {
 
         // 첫번째 역에 추가
         if(getFirstUpStation().getId().equals(section.getDownStationId())){
-            getFirstUpStation().updateFirstSection(false);
-            section.updateFirstSection(true);
+            getFirstUpStation().updateForNewSection(section);
             this.sections.add(section);
             return;
         }
 
         // 마지막 역에 추가
-        if(getLastDownStationId().equals(section.getUpStationId())){
-            getLastDownStation().updateLastSection(false);
-            section.updateLastSection(true);
+        if(getLastDownStation().getDownStationId().equals(section.getUpStationId())){
+            getLastDownStation().updateForNewSection(section);
             this.sections.add(section);
             return;
         }
@@ -55,12 +53,10 @@ public class Sections {
 
         Section origin = getOriginSection(section);
         Long originDownStationId = origin.getDownStationId();
+
         origin.updateForNewSection(section);
         section.updateNewSection(originDownStationId);
-        if(origin.isLast()){
-            origin.updateLastSection(false);
-            section.updateLastSection(true);
-        }
+
         this.sections.add(section);
 
     }
@@ -73,6 +69,7 @@ public class Sections {
                 section = originSection;
             }
         }
+
         return section;
     }
 
@@ -80,16 +77,12 @@ public class Sections {
         List<Long> stationIds = sections.stream()
                 .map(Section::getUpStationId)
                 .collect(Collectors.toList());
-        stationIds.add(getLastDownStationId());
+        stationIds.add(getLastDownStation().getDownStationId());
         return stationIds;
     }
 
     public Section getLastDownStation() {
         return sections.get(sections.size() - 1);
-    }
-
-    public Long getLastDownStationId() {
-        return sections.get(sections.size() - 1).getDownStationId();
     }
 
     public Section getFirstUpStation() {
@@ -112,6 +105,26 @@ public class Sections {
                 .orElse(null);
     }
 
+    public void removeFirstStation(Long stationId) {
+        Section previousSection = findByUpStationId(stationId);
+        Section nextSection = findByUpStationId(previousSection.getDownStationId());
+        previousSection.updateForRemoveSection(nextSection, stationId);
+        this.sections.remove(getFirstUpStation());
+    }
+
+    public void removeLastStation(Long stationId) {
+        Section nextSection = findByDownStationId(stationId);
+        Section previousSection = findByDownStationId(nextSection.getUpStationId());
+        previousSection.updateForRemoveSection(nextSection, stationId);
+        this.sections.remove(getLastDownStation());
+    }
+
+    public void removeMiddleStation(Long stationId) {
+        Section previousSection = findByDownStationId(stationId);
+        Section nextSection = findByUpStationId(stationId);
+        previousSection.updateForRemoveSection(nextSection, stationId);
+        this.sections.remove(nextSection);
+    }
     public void removeStation(Long stationId) {
         // 구간이 1개 이하인경우,
         if (this.sections.size() <= 1) {
@@ -120,33 +133,18 @@ public class Sections {
 
         // 첫번째 역 삭제
         if(getFirstUpStation().getId().equals(stationId)){
-            findByUpStationId(getFirstUpStation().getDownStationId()).updateFirstSection(true);
-            if (sections.size() == 2){
-                findByUpStationId(getFirstUpStation().getDownStationId()).updateLastSection(true);
-            }
-            this.sections.remove(getFirstUpStation());
+            removeFirstStation(stationId);
             return;
         }
 
         // 마지막 역 삭제
-        if(getLastDownStationId().equals(stationId)){
-            findByDownStationId(getLastDownStation().getUpStationId()).updateLastSection(true);
-            if (sections.size() == 2){
-                findByDownStationId(getLastDownStation().getUpStationId()).updateFirstSection(true);
-            }
-            this.sections.add(getLastDownStation());
+        if(getLastDownStation().getDownStationId().equals(stationId)){
+            removeLastStation(stationId);
             return;
         }
 
-        // 중간 역 삭제
-        Section previousSection = findByDownStationId(stationId);
-        Section nextSection = findByUpStationId(stationId);
-        previousSection.updateForRemoveSection(nextSection);
-        if( sections.size() == 2 ){
-            previousSection.updateFirstSection(true);
-            previousSection.updateLastSection(true);
-        }
-        this.sections.remove(nextSection);
+        // 중간역 삭제
+        removeMiddleStation(stationId);
 
     }
 
