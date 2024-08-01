@@ -8,9 +8,12 @@ public enum ErrorCode {
     TOO_LONG_DISTANCE_ADD(400, "S006", " 추가되는 구간의 거리는 기존 구간의 거리보다 작아야합니다."),
     INVALID_DISTANCE_ADD(400, "S007", " 추가되는 구간의 거리는 1이상이어야 합니다."),
 
-    //Section Delete
+    // Section Delete
     INSUFFICIENT_STATION_DELETE(400, "S003", " 지하철 노선에 상행 종점역과 하행 종점역만 있습니다."),
-    NOT_LAST_STATION_DELETE(400, "S004", " 지하철 노선에 등록된 역(하행 종점역)이 아닙니다.");
+    NOT_LAST_STATION_DELETE(400, "S004", " 지하철 노선에 등록된 역(하행 종점역)이 아닙니다."),
+
+    // Section View
+    NOT_FOUND_FIRST_SECTION(400, "S008", " 첫번째 구간을 찾을 수 없습니다.");
 
     private final String code;
     private final String message;

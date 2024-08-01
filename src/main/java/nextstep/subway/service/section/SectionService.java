@@ -12,8 +12,6 @@ import nextstep.subway.service.line.LineService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 
 @Service
 @Transactional(readOnly = true)
@@ -46,7 +44,7 @@ public class SectionService {
     public LineResponse deleteSection(Long id, Long stationId) {
 
         Line line = lineRepository.findById(id).orElseThrow(IllegalArgumentException::new);
-        line.removeLastStation(stationId);
+        line.removeStation(stationId);
         return LineResponse.createResponse(line, lineService.getLineStations(line));
 
     }

@@ -7,6 +7,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Embeddable
@@ -20,8 +21,7 @@ public class Sections {
 
     public void add(Section section) {
         if(this.sections.isEmpty()){
-            section.updateFirstSection(true);
-            section.updateLastSection(true);
+            section.updateNewSection(0L);
             this.sections.add(section);
             return;
         }
@@ -37,17 +37,15 @@ public class Sections {
         }
 
         // 첫번째 역에 추가
-        if(getFisrtUpStation().getId().equals(section.getDownStationId())){
-            getFisrtUpStation().updateFirstSection(false);
-            section.updateFirstSection(true);
+        if(getFirstUpStation().getId().equals(section.getDownStationId())){
+            getFirstUpStation().updateForNewSection(section);
             this.sections.add(section);
             return;
         }
 
         // 마지막 역에 추가
-        if(getLastDownStationId().equals(section.getUpStationId())){
-            getLastDownStation().updateLastSection(false);
-            section.updateLastSection(true);
+        if(getLastDownStation().getDownStationId().equals(section.getUpStationId())){
+            getLastDownStation().updateForNewSection(section);
             this.sections.add(section);
             return;
         }
@@ -55,12 +53,10 @@ public class Sections {
 
         Section origin = getOriginSection(section);
         Long originDownStationId = origin.getDownStationId();
+
         origin.updateForNewSection(section);
         section.updateNewSection(originDownStationId);
-        if(origin.isLast()){
-            origin.updateLastSection(false);
-            section.updateLastSection(true);
-        }
+
         this.sections.add(section);
 
     }
@@ -73,6 +69,7 @@ public class Sections {
                 section = originSection;
             }
         }
+
         return section;
     }
 
@@ -80,7 +77,7 @@ public class Sections {
         List<Long> stationIds = sections.stream()
                 .map(Section::getUpStationId)
                 .collect(Collectors.toList());
-        stationIds.add(getLastDownStationId());
+        stationIds.add(getLastDownStation().getDownStationId());
         return stationIds;
     }
 
@@ -88,29 +85,66 @@ public class Sections {
         return sections.get(sections.size() - 1);
     }
 
-    public Long getLastDownStationId() {
-        return sections.get(sections.size() - 1).getDownStationId();
-    }
-
-    public Section getFisrtUpStation() {
+    public Section getFirstUpStation() {
         return sections.stream()
                 .filter(Section::isFirst)
-                .findAny()
+                .findFirst()
                 .orElse(null);
     }
 
+    public Section findByUpStationId(Long upStationId) {
+        return sections.stream()
+                .filter(section -> section.getUpStationId().equals(upStationId))
+                .findFirst()
+                .orElse(null);
+    }
+    public Section findByDownStationId(Long downStationId) {
+        return sections.stream()
+                .filter(section -> section.getDownStationId().equals(downStationId))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public void removeFirstStation(Long stationId) {
+        Section previousSection = findByUpStationId(stationId);
+        Section nextSection = findByUpStationId(previousSection.getDownStationId());
+        previousSection.updateForRemoveSection(nextSection, stationId);
+        this.sections.remove(getFirstUpStation());
+    }
+
     public void removeLastStation(Long stationId) {
+        Section nextSection = findByDownStationId(stationId);
+        Section previousSection = findByDownStationId(nextSection.getUpStationId());
+        previousSection.updateForRemoveSection(nextSection, stationId);
+        this.sections.remove(getLastDownStation());
+    }
+
+    public void removeMiddleStation(Long stationId) {
+        Section previousSection = findByDownStationId(stationId);
+        Section nextSection = findByUpStationId(stationId);
+        previousSection.updateForRemoveSection(nextSection, stationId);
+        this.sections.remove(nextSection);
+    }
+    public void removeStation(Long stationId) {
         // 구간이 1개 이하인경우,
         if (this.sections.size() <= 1) {
             throw new InsufficientStationsException(ErrorCode.INSUFFICIENT_STATION_DELETE);
         }
-        // 지하철 노선에 등록된 역(하행 종점역)이 아닌 경우
-        if (!getLastDownStationId().equals(stationId)) {
-            throw new NotLastStationException(ErrorCode.NOT_LAST_STATION_DELETE);
+
+        // 첫번째 역 삭제
+        if(getFirstUpStation().getId().equals(stationId)){
+            removeFirstStation(stationId);
+            return;
         }
 
+        // 마지막 역 삭제
+        if(getLastDownStation().getDownStationId().equals(stationId)){
+            removeLastStation(stationId);
+            return;
+        }
 
-        this.sections.remove(sections.size() - 1);
+        // 중간역 삭제
+        removeMiddleStation(stationId);
 
     }
 
