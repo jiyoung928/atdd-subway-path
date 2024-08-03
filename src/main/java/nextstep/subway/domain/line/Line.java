@@ -5,6 +5,7 @@ import nextstep.subway.domain.section.Sections;
 
 import javax.persistence.*;
 import java.util.Collection;
+import java.util.stream.Stream;
 
 @Entity
 public class Line {
@@ -35,7 +36,11 @@ public class Line {
         this.name = name;
         this.color = color;
     }
-
+    public Line(String name, String color, Section section) {
+        this.name = name;
+        this.color = color;
+        sections.add(section);
+    }
     public Long getId() {
         return id;
     }
@@ -64,6 +69,10 @@ public class Line {
 
     public void removeStation(Long stationId) {
         sections.removeStation(stationId);
+    }
+
+    public Stream<Section> sectionStream() {
+        return sections.stream();
     }
 
 }

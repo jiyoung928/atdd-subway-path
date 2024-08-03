@@ -65,21 +65,8 @@ public class Section {
         return this.last;
     }
 
-    public void addLine(Line line) {
-        this.line = line;
-    }
-
-    public void updateFirstSection(boolean first) { this.first = first; }
-
-    public void updateLastSection(boolean last) {
-        this.last = last;
-    }
-
 
     public void updateForNewSection(Section newSection) {
-        if (newSection.distance > distance) {
-            throw new SectionDistanceNotValidException(ErrorCode.TOO_LONG_DISTANCE_ADD);
-        }
 
         // 첫번째 역에 추가
         if(first && upStationId.equals(newSection.getDownStationId())){
@@ -96,6 +83,10 @@ public class Section {
 
         // 중간 구간 추가 일때만, 거리 조정
         if(this.upStationId.equals(newSection.getUpStationId())){
+            if (newSection.distance > distance) {
+                throw new SectionDistanceNotValidException(ErrorCode.TOO_LONG_DISTANCE_ADD);
+            }
+
             Long newDistance = this.distance - newSection.distance;
             this.downStationId = newSection.downStationId;
             this.distance = newDistance;

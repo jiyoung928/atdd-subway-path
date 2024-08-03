@@ -2,6 +2,7 @@ package nextstep.subway.domain.section;
 
 import nextstep.subway.common.exception.*;
 import nextstep.subway.common.response.ErrorCode;
+import nextstep.subway.domain.station.Station;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Embeddable
 public class Sections {
@@ -36,8 +38,9 @@ public class Sections {
 
         }
 
+        Section Station = getFirstUpStation();
         // 첫번째 역에 추가
-        if(getFirstUpStation().getId().equals(section.getDownStationId())){
+        if(getFirstUpStation().getUpStationId().equals(section.getDownStationId())){
             getFirstUpStation().updateForNewSection(section);
             this.sections.add(section);
             return;
@@ -150,5 +153,9 @@ public class Sections {
 
     public List<Long> getSortedStationIds() {
         return sectionStationSorter.getSortedStationIds(this.sections);
+    }
+
+    public Stream<Section> stream() {
+        return sections.stream();
     }
 }
