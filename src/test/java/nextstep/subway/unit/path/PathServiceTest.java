@@ -139,8 +139,21 @@ public class PathServiceTest {
     }
 
     @Test
-    @DisplayName("존재하지 않은 출발역이나 도착역을 조회 할 경우 예외를 발생시킨다.")
-    void findShortestPathNotExistException() {
+    @DisplayName("존재하지 않은 출발역을 조회 할 경우 예외를 발생시킨다.")
+    void findShortestPathSourceNotExistException() {
+        var 임시역 = 5L;
+
+        when(sectionRepository.findAll())
+                .thenReturn(전체구간);
+        when(stationRepository.findAll())
+                .thenReturn(전체역);
+
+        assertThrows(NotExistStationException.class,
+                () -> pathService.getShortestPath(임시역, 교대역.getId()));
+    }
+    @Test
+    @DisplayName("존재하지 않은 도착역을 조회 할 경우 예외를 발생시킨다.")
+    void findShortestPathTargetNotExistException() {
         var 임시역 = 5L;
 
         when(sectionRepository.findAll())
