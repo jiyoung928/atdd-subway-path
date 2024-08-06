@@ -13,7 +13,13 @@ public enum ErrorCode {
     NOT_LAST_STATION_DELETE(400, "S004", " 지하철 노선에 등록된 역(하행 종점역)이 아닙니다."),
 
     // Section View
-    NOT_FOUND_FIRST_SECTION(400, "S008", " 첫번째 구간을 찾을 수 없습니다.");
+    NOT_FOUND_FIRST_SECTION(400, "S008", " 첫번째 구간을 찾을 수 없습니다."),
+
+    // Path
+    NOT_FOUND_PATH(400, "S009", " 경로를 찾을 수 없습니다."),
+    NOT_FOUND_STATION(400, "S010", " 출발역 또는 도착역이 존재하지 않습니다."),
+    SAME_STATION(400, "S011", " 출발역 또는 도착역이 동일합니다.");
+
 
     private final String code;
     private final String message;

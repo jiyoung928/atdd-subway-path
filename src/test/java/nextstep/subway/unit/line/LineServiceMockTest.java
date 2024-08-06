@@ -1,4 +1,4 @@
-package nextstep.subway.unit;
+package nextstep.subway.unit.line;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -7,21 +7,16 @@ import nextstep.subway.domain.line.Line;
 import nextstep.subway.domain.line.LineRepository;
 import nextstep.subway.domain.section.Section;
 import nextstep.subway.domain.station.Station;
-import nextstep.subway.domain.station.StationRepository;
-import nextstep.subway.service.line.LineService;
 import nextstep.subway.service.station.StationService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Optional;
-
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class LineServiceMockTest {
