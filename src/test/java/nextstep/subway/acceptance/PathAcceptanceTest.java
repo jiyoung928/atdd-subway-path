@@ -111,22 +111,37 @@ class PathAcceptanceTest extends AcceptanceTest {
     }
 
     /**
-     * When 존재하지 않은 출발역이나 도착역의 경로를 조회하면
+     * When 존재하지 않은 출발역으로 경로를 조회하면
      * Then 예외가 발생한다.
      */
-    @DisplayName("존재하지 않은 출발역이나 도착역을 조회 할 경우 예외가 발생한다.")
+    @DisplayName("존재하지 않은 출발역으로 경로 조회 할 경우 예외가 발생한다.")
     @Test
-    void getShortestPathNotExistException() {
+    void getShortestPathSourceNotExistException() {
         // when
         var 유령역 = -1L;
         var 출발역없음 = 지하철_최단_경로_조회_요청(유령역, 양재역);
-        var 도착역없음 = 지하철_최단_경로_조회_요청(교대역, 유령역);
 
         // then
         assertAll(() -> {
             assertThat(출발역없음.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
             assertThat(출발역없음.jsonPath().getString("code")).isEqualTo("S010");
             assertThat(출발역없음.jsonPath().getString("message")).isEqualTo(" 출발역 또는 도착역이 존재하지 않습니다.");
+        });
+    }
+
+    /**
+     * When 존재하지 않은 도착역을로 경로를 조회하면
+     * Then 예외가 발생한다.
+     */
+    @DisplayName("존재하지 않은 도착역으로 경로 조회 할 경우 예외가 발생한다.")
+    @Test
+    void getShortestPathTargetNotExistException() {
+        // when
+        var 유령역 = -1L;
+        var 도착역없음 = 지하철_최단_경로_조회_요청(교대역, 유령역);
+
+        // then
+        assertAll(() -> {
             assertThat(도착역없음.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
             assertThat(도착역없음.jsonPath().getString("code")).isEqualTo("S010");
             assertThat(도착역없음.jsonPath().getString("message")).isEqualTo(" 출발역 또는 도착역이 존재하지 않습니다.");

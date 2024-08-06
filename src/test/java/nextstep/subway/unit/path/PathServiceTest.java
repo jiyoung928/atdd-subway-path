@@ -6,12 +6,14 @@ import nextstep.subway.common.exception.SameStationException;
 import nextstep.subway.domain.line.Line;
 import nextstep.subway.domain.line.LineRepository;
 import nextstep.subway.domain.section.Section;
+import nextstep.subway.domain.section.SectionRepository;
 import nextstep.subway.domain.station.Station;
 import nextstep.subway.dto.station.StationResponse;
 import nextstep.subway.domain.station.StationRepository;
 import nextstep.subway.dto.path.PathResponse;
 import nextstep.subway.service.path.PathService;
 import nextstep.subway.service.path.ShortestPathFinder;
+import nextstep.subway.service.path.ShortestPathFinderFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,9 +35,8 @@ import static org.mockito.Mockito.when;
 public class PathServiceTest {
 
     private PathService pathService;
-    private LineRepository lineRepository;
     private StationRepository stationRepository;
-    private ShortestPathFinder shortestPathFinder;
+    private SectionRepository sectionRepository;
 
     private Station 교대역;
     private Station 강남역;
@@ -43,11 +44,16 @@ public class PathServiceTest {
     private Station 남부터미널역;
 
     private List<Station> 전체역;
+    private List<Section> 전체구간;
 
     private Line 이호선;
     private Line 신분당선;
     private Line 삼호선;
 
+    private Section section1;
+    private Section section2;
+    private Section section3;
+    private Section section4;
 
     /**
      * 교대역    --- *2호선* (10) ---    강남역
@@ -65,30 +71,30 @@ public class PathServiceTest {
         남부터미널역 = new Station(4L, "남부터미널역");
         전체역 = List.of(교대역, 강남역, 양재역, 남부터미널역);
 
-        이호선 = new Line("2호선", "green", new Section(교대역.getId(), 강남역.getId(), 10L));
-        신분당선 = new Line("신분당선", "red", new Section(강남역.getId(), 양재역.getId(), 10L));
-        삼호선 = new Line("3호선", "orange", new Section(교대역.getId(), 남부터미널역.getId(), 2L));
-        삼호선.addSection(new Section(남부터미널역.getId(), 양재역.getId(), 3L));
+        section1 = new Section(교대역.getId(), 강남역.getId(), 10L);
+        section2 = new Section(강남역.getId(), 양재역.getId(), 10L);
+        section3 = new Section(교대역.getId(), 남부터미널역.getId(), 2L);
+        section4 = new Section(남부터미널역.getId(), 양재역.getId(), 3L);
+        전체구간 = List.of(section1, section2, section3, section4);
 
-        shortestPathFinder = new ShortestPathFinder();
+        이호선 = new Line("2호선", "green", section1);
+        신분당선 = new Line("신분당선", "red", section2);
+        삼호선 = new Line("3호선", "orange", section3);
+        삼호선.addSection(section4);
+
         stationRepository = mock(StationRepository.class);
-        lineRepository = mock(LineRepository.class);
-        pathService = new PathService( lineRepository, stationRepository,shortestPathFinder);
+        sectionRepository = mock(SectionRepository.class);
+        pathService = new PathService(stationRepository, sectionRepository);
     }
 
     @Test
     @DisplayName("최단 거리와 경로를 반환한다.")
     void findShortestPath() {
-        when(stationRepository.findByIdIn(anyCollection()))
-                .thenAnswer(invocation -> {
-                    Collection<Long> ids = invocation.getArgument(0);
-                    return ids.stream()
-                            .map(this::findStationById)
-                            .collect(Collectors.toList());
-                });
 
-        when(lineRepository.findAll())
-                .thenReturn(List.of(이호선, 신분당선, 삼호선));
+        when(sectionRepository.findAll())
+                .thenReturn(전체구간);
+        when(stationRepository.findAll())
+                .thenReturn(전체역);
 
         when(stationRepository.existsById(교대역.getId())).thenReturn(true);
         when(stationRepository.existsById(양재역.getId())).thenReturn(true);
@@ -114,23 +120,19 @@ public class PathServiceTest {
     void findShortestPathNotConnectedException() {
         var 서울역 = new Station(5L, "서울역");
         var 수원역 = new Station(6L, "수원역");
-        var 일호선 = new Line("1호선", "blue", new Section(서울역.getId(), 수원역.getId(), 10L));
+        var section = new Section(서울역.getId(), 수원역.getId(), 10L);
+        var 일호선 = new Line("1호선", "blue", section);
 
         전체역 = List.of(교대역, 강남역, 양재역, 남부터미널역, 서울역, 수원역);
+        전체구간 = List.of(section1, section2, section3, section4, section);
 
-        when(stationRepository.findByIdIn(anyCollection()))
-                .thenAnswer(invocation -> {
-                    Collection<Long> ids = invocation.getArgument(0);
-                    return ids.stream()
-                            .map(this::findStationById)
-                            .collect(Collectors.toList());
-                });
+        when(sectionRepository.findAll())
+                .thenReturn(전체구간);
+        when(stationRepository.findAll())
+                .thenReturn(전체역);
 
         when(stationRepository.existsById(서울역.getId())).thenReturn(true);
         when(stationRepository.existsById(강남역.getId())).thenReturn(true);
-
-        when(lineRepository.findAll())
-                .thenReturn(List.of(이호선, 신분당선, 삼호선, 일호선));
 
         assertThrows(PathNotFoundException.class,
                 () -> pathService.getShortestPath(서울역.getId(), 강남역.getId()));
@@ -141,17 +143,10 @@ public class PathServiceTest {
     void findShortestPathNotExistException() {
         var 임시역 = 5L;
 
-        when(stationRepository.findByIdIn(anyCollection()))
-                .thenAnswer(invocation -> {
-                    Collection<Long> ids = invocation.getArgument(0);
-                    return ids.stream()
-                            .map(this::findStationById)
-                            .collect(Collectors.toList());
-                });
-
-
-        when(lineRepository.findAll())
-                .thenReturn(List.of(이호선, 신분당선, 삼호선));
+        when(sectionRepository.findAll())
+                .thenReturn(전체구간);
+        when(stationRepository.findAll())
+                .thenReturn(전체역);
 
         assertThrows(NotExistStationException.class,
                 () -> pathService.getShortestPath(교대역.getId(), 임시역));
