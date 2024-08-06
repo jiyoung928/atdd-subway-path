@@ -1,44 +1,45 @@
 package nextstep.subway.service.path;
 
-import nextstep.subway.domain.path.SectionEdge;
-import nextstep.subway.domain.section.Section;
-import org.jgrapht.GraphPath;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import nextstep.subway.common.exception.PathNotFoundException;
+import nextstep.subway.common.response.ErrorCode;
+import nextstep.subway.domain.station.Station;
+import nextstep.subway.dto.path.PathResponse;
+import nextstep.subway.dto.station.StationResponse;
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.WeightedMultigraph;
-import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
 
-@Component
+import java.util.stream.Collectors;
+
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+@Getter
 public class ShortestPathFinder {
     private final WeightedMultigraph<Long, DefaultWeightedEdge> graph;
 
-    public ShortestPathFinder() {
-        graph = new WeightedMultigraph<>(DefaultWeightedEdge.class);
-    }
-
-    public Optional<GraphPath<Long, DefaultWeightedEdge>> find(final List<SectionEdge> edges, Long source, Long target) {
-        addEdges(edges);
-        setWeight(edges);
+    public PathResponse find(Long source, Long target, List<Station> stationList) {
 
         DijkstraShortestPath<Long, DefaultWeightedEdge> shortestPath = new DijkstraShortestPath<>(graph);
+        var path = shortestPath.getPath(source, target);
+        if (path == null) {
+            throw new PathNotFoundException(ErrorCode.NOT_FOUND_PATH);
+        }
 
-        return Optional.ofNullable(shortestPath.getPath(source, target));
+        List<Long> stationIds = path.getVertexList();
+        List<StationResponse> stationMap = new ArrayList<>();
+        stationIds.forEach(stationId -> stationMap.add(
+                stationList.stream().filter(station -> station.getId().equals(stationId))
+                        .findFirst().map(StationResponse::createResponse).orElseThrow()
+        ));
+
+
+        return new PathResponse(stationMap, (long) path.getWeight());
     }
-    private void addEdges(final List<SectionEdge> edges) {
-        edges.stream()
-                .flatMap(it -> Stream.of(it.getTargetVertex(), it.getSourceVertex()))
-                .distinct()
-                .forEach(graph::addVertex);
-    }
-    private void setWeight(final List<SectionEdge> edges) {
-        edges.forEach(it -> {
-            DefaultWeightedEdge edge = graph.addEdge(it.getSourceVertex(), it.getTargetVertex());
-            graph.setEdgeWeight(edge, it.getWeight());
-        });
-    }
+
 
 }

@@ -7,6 +7,8 @@ import nextstep.subway.common.response.ErrorCode;
 import nextstep.subway.domain.line.Line;
 import nextstep.subway.domain.line.LineRepository;
 import nextstep.subway.domain.path.SectionEdge;
+import nextstep.subway.domain.section.Section;
+import nextstep.subway.domain.section.SectionRepository;
 import nextstep.subway.domain.station.Station;
 import nextstep.subway.domain.station.StationRepository;
 import nextstep.subway.dto.path.PathResponse;
@@ -21,37 +23,22 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class PathService {
 
-    private final LineRepository lineRepository;
     private final StationRepository stationRepository;
-    private final ShortestPathFinder shortestPathFinder;
+    private final SectionRepository sectionRepository;
 
-    public PathService(LineRepository lineRepository, StationRepository stationRepository, ShortestPathFinder shortestPathFinder) {
-        this.lineRepository = lineRepository;
+    public PathService(StationRepository stationRepository, SectionRepository sectionRepository) {
         this.stationRepository = stationRepository;
-        this.shortestPathFinder = shortestPathFinder;
+        this.sectionRepository = sectionRepository;
     }
-
 
     public PathResponse getShortestPath(Long source, Long target) {
 
         validateStation(source, target);
-        List<SectionEdge> edges = lineRepository.findAll().stream()
-                .flatMap(Line::sectionStream)
-                .map(SectionEdge::new)
-                .collect(Collectors.toList());
+        List<Section> sectionList = sectionRepository.findAll();
+        List<Station> stationList = stationRepository.findAll();
+        var shortestPath = ShortestPathFinderFactory.createPathFinder(sectionList, stationList);
 
-        var shortestPath = shortestPathFinder.find(edges, source, target)
-                .orElseThrow(() -> new PathNotFoundException(ErrorCode.NOT_FOUND_PATH));
-
-        List<Long> stationIds = shortestPath.getVertexList();
-        Map<Long, Station> stationMap = getStationMap(stationIds);
-        return new PathResponse(
-                stationIds.stream()
-                        .map(stationMap::get)
-                        .map(StationResponse::createResponse)
-                        .collect(Collectors.toList()),
-                (long) shortestPath.getWeight()
-        );
+        return shortestPath.find(source, target, stationList);
     }
 
     private void validateStation(Long source, Long target) {
@@ -63,9 +50,4 @@ public class PathService {
         }
     }
 
-    private Map<Long, Station> getStationMap(final List<Long> stationsIds) {
-        return stationRepository.findByIdIn(stationsIds)
-                .stream()
-                .collect(Collectors.toMap(Station::getId, (station -> station)));
-    }
 }
